@@ -8,7 +8,7 @@ export const getOrders = async () => {
 
 export const createOrder = async (order: any) => {
   const response = await axios.post(API_URL, order);
-  return response.data;
+  return response;
 };
 
 export const updateOrder = async (id: number, order: any) => {
