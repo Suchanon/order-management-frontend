@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { getOrders, deleteOrder } from "../api/orderApi"
+import { getOrders, deleteOrder } from "../api/orderApi";
+import { useOrderStore } from "../store/orderStore";
 
-import { useOrderStore } from '../store/orderStore';
 interface OrderItem {
   orderItemId: number;
   customerEmail: string;
@@ -21,166 +21,154 @@ interface Order {
   items: OrderItem[];
 }
 
-const initialOrders: Order[] = [
-  {
-    orderId: 6,
-    userId: 13,
-    customerName: "John Doe updated",
-    customerEmail: "postman.doe@example.comupdated",
-    total_price: "99999999.99",
-    status: "pending",
-    created_at: "2025-03-17T10:07:57.775Z",
-    items: [
-      {
-        orderItemId: 7,
-        customerEmail: "postman.doe@example.comupdated",
-        productName: "Laptop updated",
-        quantity: 99,
-        price: 9999999,
-      },
-      {
-        orderItemId: 8,
-        customerEmail: "postman.doe@example.comupdated",
-        productName: "Wireless Mouse updated",
-        quantity: 9,
-        price: 9999,
-      },
-    ],
-  },
-  {
-    orderId: 1,
-    userId: 1,
-    customerName: "John Doe",
-    customerEmail: "john.doe@example.com",
-    total_price: "10.00",
-    status: "pending",
-    created_at: "2025-03-16T17:40:48.606Z",
-    items: [
-      {
-        orderItemId: 3,
-        customerEmail: "john.doe@example.com",
-        productName: "Laptop1",
-        quantity: 1,
-        price: 100,
-      },
-      {
-        orderItemId: 2,
-        customerEmail: "john.doe@example.com",
-        productName: "Laptop1",
-        quantity: 1,
-        price: 100,
-      },
-    ],
-  },
-];
-
 export default function OrderList() {
-  const { orders, createOrder, fetchOrders, deleteOrder: removeOrder } = useOrderStore();
-  // const fetchOrders = async () => {
-  //   const data = await getOrders();
-  //   console.log("data>>", data)
-  //   setOrders(data);
-  // };
-
-  const [editingEmail, setEditingEmail] = useState<number | null>(null);
-  const [editingItemId, setEditingItemId] = useState<number | null>(null);
-
-  const handleEditItem = (itemId: number) => {
-    setEditingItemId(itemId);
-  };
-
-  const handleEditEmail = (userId: number) => {
-    setEditingEmail(userId);
-  }
-
-  const handleSave = () => {
-    setEditingItemId(null);
-    setEditingEmail(null);
-  };
+  const { orders, fetchOrders, deleteOrder: removeOrder } = useOrderStore();
+  
+  const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
+  const [editingOrderData, setEditingOrderData] = useState<Order | null>(null);
 
   useEffect(() => {
     fetchOrders();
-    console.log('i fire once');
   }, []);
 
-  const handleRemoveOrderById = async (orderId:number) =>{
+  const handleEdit = (order: Order) => {
+    setEditingOrderId(order.orderId);
+    setEditingOrderData({ ...order });
+  };
 
-    console.log("orderId>>", orderId)
-    console.log("orders>>>", orders)
-    const deleteSuc = await deleteOrder(orderId)
-    if(deleteSuc){
-      removeOrder(orderId)
-    }else{
-      console.log("Error")
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
+    if (editingOrderData) {
+      setEditingOrderData({ ...editingOrderData, [field]: e.target.value });
     }
-  }
+  };
+
+  const handleItemChange = (index: number, field: string, value: string | number) => {
+    if (editingOrderData) {
+      const updatedItems = [...editingOrderData.items];
+      updatedItems[index] = { ...updatedItems[index], [field]: value };
+      setEditingOrderData({ ...editingOrderData, items: updatedItems });
+    }
+  };
+
+  const handleSave = () => {
+    console.log("Updated Order Data:", editingOrderData);
+    setEditingOrderId(null);
+    setEditingOrderData(null);
+  };
+
+  const handleCancel = () => {
+    setEditingOrderId(null);
+    setEditingOrderData(null);
+  };
+
+  const handleRemoveOrderById = async (orderId: number) => {
+    const deleteSuccess = await deleteOrder(orderId);
+    if (deleteSuccess) {
+      removeOrder(orderId);
+    } else {
+      console.error("Error deleting order");
+    }
+  };
 
   return (
     <div className="space-y-4 p-4">
-      <div>From order list naaa</div>
       {orders.map((order: any) => (
         <div key={order.orderId} className="border p-4 rounded shadow">
-          <p><strong>Order##:</strong> {order.orderId}</p>
-          <p><strong>Customer Name:</strong> {order.customerName} </p>
-          {editingEmail === order.userId ? (<>
-            <div>Editing</div>
-            <input
-              value={order.customerEmail}
-              // onChange={(e) => handleItemInputChange(order.orderId, item.orderItemId, "productName", e.target.value)}
-              placeholder="Product Name"
-              className="border p-1 rounded"
-            />
-            <button onClick={() => { }} className="bg-blue-500 text-white p-1 rounded ml-2">Save</button>
-          </>) : (<>
-            <p><strong>Customer Email22:</strong> {order.customerEmail}
-              <button onClick={() => handleEditEmail(order.userId)} className="bg-blue-500 text-white p-1 rounded ml-2">Edit</button>
-            </p>
-          </>)}
+          <p><strong>Order ID:</strong> {order.orderId}</p>
 
+          <p><strong>Customer Name:</strong> 
+            {editingOrderId === order.orderId ? (
+              <input 
+                value={editingOrderData?.customerName || ""} 
+                onChange={(e) => handleChange(e, "customerName")} 
+                className="border p-1 rounded ml-2" 
+              />
+            ) : (
+              ` ${order.customerName}`
+            )}
+          </p>
+
+          <p><strong>Customer Email:</strong> 
+            {editingOrderId === order.orderId ? (
+              <input 
+                value={editingOrderData?.customerEmail || ""} 
+                onChange={(e) => handleChange(e, "customerEmail")} 
+                className="border p-1 rounded ml-2" 
+              />
+            ) : (
+              ` ${order.customerEmail}`
+            )}
+          </p>
+
+          <p><strong>Status:</strong> 
+            {editingOrderId === order.orderId ? (
+              <input 
+                value={editingOrderData?.status || ""} 
+                onChange={(e) => handleChange(e, "status")} 
+                className="border p-1 rounded ml-2" 
+              />
+            ) : (
+              ` ${order.status}`
+            )}
+          </p>
 
           <p><strong>Items:</strong></p>
-
           <ul className="list-disc pl-4">
-            {order.items.map((item: any) => (
+            {order.items.map((item :any, index:any) => (
               <li key={item.orderItemId}>
-                {editingItemId === item.orderItemId ? (<>
-                  <input
-                    value={item.productName}
-                    // onChange={(e) => handleItemInputChange(order.orderId, item.orderItemId, "productName", e.target.value)}
-                    placeholder="Product Name"
-                    className="border p-1 rounded"
+                <span><strong>Product:</strong> </span>
+                {editingOrderId === order.orderId ? (
+                  <input 
+                    value={editingOrderData?.items[index]?.productName || ""} 
+                    onChange={(e) => handleItemChange(index, "productName", e.target.value)} 
+                    className="border p-1 rounded ml-2" 
                   />
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    // onChange={(e) => handleItemInputChange(order.orderId, item.orderItemId, "quantity", Number(e.target.value))}
-                    placeholder="Quantity"
-                    className="border p-1 rounded ml-2"
-                  />
-                  <input
-                    type="number"
-                    value={item.price}
-                    // onChange={(e) => handleItemInputChange(order.orderId, item.orderItemId, "price", Number(e.target.value))}
-                    placeholder="Price"
-                    className="border p-1 rounded ml-2"
-                  />
-                  <button onClick={handleSave} className="bg-blue-500 text-white p-1 rounded ml-2">Save</button>
-                </>) : (<>
-                  Product name: {item.productName} Q: {item.quantity} P: ${item.price}
-                  <button className="bg-yellow-500 text-white p-1 rounded ml-2">Edit</button>
-                  <button className="bg-red-500 text-white p-1 rounded ml-2">Delete</button>
-                </>)}
+                ) : (
+                  ` ${item.productName}`
+                )}
 
+                <span> | <strong>Qty:</strong> </span>
+                {editingOrderId === order.orderId ? (
+                  <input 
+                    type="number"
+                    value={editingOrderData?.items[index]?.quantity || 0} 
+                    onChange={(e) => handleItemChange(index, "quantity", Number(e.target.value))} 
+                    className="border p-1 rounded ml-2 w-16" 
+                  />
+                ) : (
+                  ` ${item.quantity}`
+                )}
+
+                <span> | <strong>Price:</strong> </span>
+                {editingOrderId === order.orderId ? (
+                  <input 
+                    type="number"
+                    value={editingOrderData?.items[index]?.price || 0} 
+                    onChange={(e) => handleItemChange(index, "price", Number(e.target.value))} 
+                    className="border p-1 rounded ml-2 w-20" 
+                  />
+                ) : (
+                  ` $${item.price}`
+                )}
               </li>
-              
             ))}
           </ul>
-          <button onClick={() => handleRemoveOrderById(order.orderId)} className="bg-red-500 text-white p-1 rounded mt-2">Delete</button>
 
-          <div>--------------------------------------------------------------------------------------------------------------</div>
+          {editingOrderId === order.orderId ? (
+            <div className="mt-2">
+              <button onClick={handleSave} className="bg-green-500 text-white p-1 rounded mr-2">Save</button>
+              <button onClick={handleCancel} className="bg-gray-500 text-white p-1 rounded">Cancel</button>
+            </div>
+          ) : (
+            <div className="mt-2">
+              <button onClick={() => handleEdit(order)} className="bg-blue-500 text-white p-1 rounded mr-2">Edit</button>
+              <button onClick={() => handleRemoveOrderById(order.orderId)} className="bg-red-500 text-white p-1 rounded">Delete</button>
+            </div>
+          )}
+
+          <hr className="mt-4" />
         </div>
       ))}
-
     </div>
   );
 }

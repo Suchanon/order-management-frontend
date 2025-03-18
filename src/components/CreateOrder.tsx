@@ -75,6 +75,7 @@ export default function CreateOrder() {
         alert("Order submitted successfully!");
         await createOrder(sanitizeOrder())
         await fetchOrders()
+        setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
         // const finalOrder = { ...order, totalPrice: calculateTotal() };
         // try {
 
