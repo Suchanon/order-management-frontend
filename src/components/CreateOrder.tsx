@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../css/CreateOrder.css";
 interface OrderItem {
     productName: string;
-    quantity: number;
+    quantity: number | string;
     price: number | string;
 }
 
@@ -20,7 +20,7 @@ export default function CreateOrder() {
     const { createOrder,  } = useOrderStore();
     const [order, setOrder] = useState<CreateOrderInterface>({
         user: { name: ""},
-        orderItems: [{ productName: "", quantity: 1, price: 0 }],
+        orderItems: [{ productName: "", quantity: "", price: 0 }],
     });
 
     const addItem = () => {
