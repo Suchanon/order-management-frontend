@@ -1,23 +1,64 @@
 import axios from 'axios';
 
-const API_URL:string = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const API_URL: string = 
+  `${process.env.REACT_APP_API_URL}/${process.env.REACT_APP_API_VERSION}/orders` || 
+  "http://localhost:3000/v1/orders";
+
+/**
+ * Handles API errors and logs them
+ */
+const handleApiError = (error: any) => {
+  if (axios.isAxiosError(error)) {
+    console.error("API Error:", error.response?.data || error.message);
+    return { error: error.response?.data?.message || "An unexpected error occurred" };
+  }
+  return { error: "Something went wrong" };
+};
+
+/**
+ * Fetch orders with error handling
+ */
 export const getOrders = async () => {
-  const response = await axios.get(`${API_URL}`);
-  return response.data;
+  try {
+    const response = await axios.get(API_URL);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
 };
 
+/**
+ * Create a new order with error handling
+ */
 export const createOrder = async (order: any) => {
-  const response = await axios.post(API_URL, order);
-  return response;
+  try {
+    const response = await axios.post(API_URL, order);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
 };
 
-export const updateOrder = async (id: number, order: any) => {
-  const response = await axios.put(`${API_URL}/${id}`, order);
-  return response.data;
+/**
+ * Update an order with error handling
+ */
+export const updateOrder = async (order: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/full-update`, order);
+    return response.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
 };
-//done
+
+/**
+ * Delete an order with error handling
+ */
 export const deleteOrder = async (id: number) => {
-  console.log("Call delete order", id)
-  await axios.delete(`${API_URL}/${id}`);
-  return true
+  try {
+    await axios.delete(`${API_URL}/${id}`);
+    return { success: true };
+  } catch (error) {
+    throw handleApiError(error);
+  }
 };

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getOrders, createOrder } from "../api/orderApi"
+import { getOrders, createOrder, updateOrder, deleteOrder } from "../api/orderApi"
 interface OrderItem {
   orderItemId: number;
   customerEmail: string;
@@ -26,27 +26,68 @@ interface OrderState {
   updateOrder: (order: Order) => void;
   deleteOrder: (id: number) => void;
 
-  fetchOrders: () => Promise<void>;
-  createOrder: (order: any) => Promise<void>;
+  fetchOrders: () => void;
+  createOrder: (order: any) => void;
 }
 
 export const useOrderStore = create<OrderState>((set) => ({
   orders: [],
+
   setOrders: (orders) => set({ orders }),
+
   fetchOrders: async () => {
-    set({ orders: await getOrders() });
+    try {
+      const response = await getOrders();
+      set({ orders: response });
+      return { success: true, data: response };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error.message || "Failed to fetch orders",
+      };
+    }
   },
+
   createOrder: async (order: any) => {
-    await createOrder(order)
-    set({ orders: await getOrders() });
+    try {
+      const response = await createOrder(order);
+      set({ orders: await getOrders() });
+      return { success: true, data: response };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error.message || "Failed to create order",
+      };
+    }
   },
+
   addOrder: (order) => set((state) => ({ orders: [...state.orders, order] })),
-  updateOrder: (order) =>
-    set((state) => ({
-      orders: state.orders.map((o) => (o.orderId === order.orderId ? order : o)),
-    })),
-  deleteOrder: (id) =>
-    set((state) => ({
-      orders: state.orders.filter((o) => o.orderId !== id),
-    })),
+
+  updateOrder: async (order) => {
+    try {
+      const response = await updateOrder(order);
+      set({ orders: await getOrders() });
+      return { success: true, data: response };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error.message || "Failed to update order",
+      };
+    }
+  },
+
+  deleteOrder: async (id) => {
+    try {
+      const response = await deleteOrder(id);
+      set((state) => ({
+        orders: state.orders.filter((o) => o.orderId !== id),
+      }));
+      return { success: true, data: response };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || error.message || "Failed to delete order",
+      };
+    }
+  },
 }));

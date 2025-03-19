@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { createOrder } from "../api/orderApi"
 import { useOrderStore } from "../store/orderStore"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface OrderItem {
     productName: string;
@@ -43,12 +44,24 @@ export default function CreateOrder() {
 
     const updateItem = (index: number, key: keyof OrderItem, value: string | number) => {
         setOrder((prev) => {
-            const items = prev.orderItems.map((item, i) =>
-                i === index ? { ...item, [key]: value } : item
-            );
+            const items = prev.orderItems.map((item, i) => {
+                if (i !== index) return item;
+
+                let updatedValue = value;
+
+                if (key === "quantity") {
+                    updatedValue = value === "" ? "" : Math.max(1, Math.floor(Number(value)));
+                } else if (key === "price") {
+                    updatedValue = value === "" ? "" : Math.max(0, Number(value));
+                }
+
+                return { ...item, [key]: updatedValue };
+            });
+
             return { ...prev, orderItems: items };
         });
     };
+
 
     const updateUser = (key: keyof Order["user"], value: string) => {
         setOrder((prev) => ({
@@ -57,9 +70,6 @@ export default function CreateOrder() {
         }));
     };
 
-    //   const calculateTotal = () => {
-    //     return order.orderItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
-    //   };
 
     const sanitizeOrder = (): Order => {
         return {
@@ -71,27 +81,15 @@ export default function CreateOrder() {
         };
     };
     const submitOrder = async () => {
-        console.log("order>>>", order)
-        alert("Order submitted successfully!");
         await createOrder(sanitizeOrder())
         await fetchOrders()
         setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
-        // const finalOrder = { ...order, totalPrice: calculateTotal() };
-        // try {
-
-        //     const response = await createOrder(sanitizeOrder())
-        //     if (response) {
-        //         alert("Order submitted successfully!");
-        //         setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
-        //         // addOrder(order)
-        //     }
-        // } catch (error) {
-        //     console.error("Error submitting order:", error);
-        // }
+        toast.success("Order submitted successfully!");
     };
 
     return (
         <div>
+          <ToastContainer position="top-right"  closeButton={false} autoClose={3000} />
             <h2>Create Order</h2>
             <div>
                 <input
@@ -119,21 +117,34 @@ export default function CreateOrder() {
                     <input
                         type="number"
                         placeholder="Quantity"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, "quantity", Number(e.target.value))}
+                        value={order.orderItems[index].quantity || ""}
+                        onChange={(e) => updateItem(index, "quantity", e.target.value ? Number(e.target.value) : "")}
+                        onBlur={(e) => {
+                            if (!e.target.value || Number(e.target.value) <= 0) {
+                                updateItem(index, "quantity", 1); // Restore 1 if empty or invalid
+                            }
+                        }}
+                        min={1}
                     />
+
                     <input
                         type="number"
                         placeholder="Price"
-                        value={item.price}
-                        onChange={(e) => updateItem(index, "price", Number(e.target.value))}
+                        value={order.orderItems[index].price || ""}
+                        onChange={(e) => updateItem(index, "price", e.target.value ? Number(e.target.value) : "")}
+                        onBlur={(e) => {
+                            if (!e.target.value) {
+                                updateItem(index, "price", 0); // Restore 0 if empty
+                            }
+                        }}
+                        min={0}
                     />
+
                     <button onClick={() => removeItem(index)}>Remove</button>
                 </div>
             ))}
             <button onClick={addItem}>Add Item</button>
             <br />
-            {/* <h3>Total Price: ${calculateTotal().toFixed(2)}</h3> */}
             <button onClick={submitOrder}>Submit Order</button>
         </div>
     );
