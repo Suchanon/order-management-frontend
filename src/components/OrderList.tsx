@@ -4,6 +4,7 @@ import { useOrderStore } from "../store/orderStore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { OrderItem, Order } from "../interfaces/order"
+import "../css/OrderList.css";
 
 export default function OrderList() {
   const { orders, fetchOrders, deleteOrder, updateOrder } = useOrderStore();
@@ -66,112 +67,112 @@ export default function OrderList() {
   };
 
   return (
-    <div className="space-y-4 p-4">
-       <ToastContainer position="top-right" closeButton={false} autoClose={3000} />
-      {orders.map((order: Order) => (
-        <div key={order.orderId} className="border p-4 rounded shadow">
-          <p><strong>Order ID:</strong> {order.orderId}</p>
+<div className="order-container">
+  <ToastContainer position="top-right" closeButton={false} autoClose={3000} />
+  {orders.map((order: Order) => (
+    <div key={order.orderId} className="order-card">
+      <p><strong>Order ID:</strong> {order.orderId}</p>
 
-          <p><strong>Customer Name:</strong>
+      <p><strong>Customer Name:</strong>
+        {editingOrderId === order.orderId ? (
+          <input
+            value={editingOrderData?.customerName || ""}
+            onChange={(e) => handleChange(e, "customerName")}
+            className="order-input"
+          />
+        ) : (
+          ` ${order.customerName}`
+        )}
+      </p>
+
+      <p><strong>Customer Email:</strong>
+        {editingOrderId === order.orderId ? (
+          <input
+            value={editingOrderData?.customerEmail || ""}
+            onChange={(e) => handleChange(e, "customerEmail")}
+            className="order-input"
+          />
+        ) : (
+          ` ${order.customerEmail}`
+        )}
+      </p>
+
+      <p><strong>Status:</strong>
+        {editingOrderId === order.orderId ? (
+          <input
+            value={editingOrderData?.status || ""}
+            onChange={(e) => handleChange(e, "status")}
+            className="order-input"
+          />
+        ) : (
+          ` ${order.status}`
+        )}
+      </p>
+
+      <p><strong>Items:</strong></p>
+      <ul className="order-list">
+        {order.items.map((item: OrderItem, index: number) => (
+          <li key={item.orderItemId}>
+            <span><strong>Product:</strong> </span>
             {editingOrderId === order.orderId ? (
               <input
-                value={editingOrderData?.customerName || ""}
-                onChange={(e) => handleChange(e, "customerName")}
-                className="border p-1 rounded ml-2"
+                value={editingOrderData?.items[index]?.productName || ""}
+                onChange={(e) => handleItemChange(index, "productName", e.target.value)}
+                className="order-input"
               />
             ) : (
-              ` ${order.customerName}`
+              ` ${item.productName}`
             )}
-          </p>
 
-          <p><strong>Customer Email:</strong>
+            <span> | <strong>Qty:</strong> </span>
             {editingOrderId === order.orderId ? (
               <input
-                value={editingOrderData?.customerEmail || ""}
-                onChange={(e) => handleChange(e, "customerEmail")}
-                className="border p-1 rounded ml-2"
+                type="number"
+                value={editingOrderData?.items[index]?.quantity === "" ? "" : editingOrderData?.items[index]?.quantity || 1}
+                onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    handleItemChange(index, "quantity", 1);
+                  }
+                }}
+                className="order-input order-input-small"
+                min={1}
               />
             ) : (
-              ` ${order.customerEmail}`
+              ` ${item.quantity}`
             )}
-          </p>
 
-          <p><strong>Status:</strong>
+            <span> | <strong>Price:</strong> </span>
             {editingOrderId === order.orderId ? (
               <input
-                value={editingOrderData?.status || ""}
-                onChange={(e) => handleChange(e, "status")}
-                className="border p-1 rounded ml-2"
+                type="number"
+                value={editingOrderData?.items[index]?.price || 1}
+                onChange={(e) => handleItemChange(index, "price", Number(e.target.value))}
+                className="order-input order-input-small"
               />
             ) : (
-              ` ${order.status}`
+              ` $${item.price}`
             )}
-          </p>
+          </li>
+        ))}
+      </ul>
 
-          <p><strong>Items:</strong></p>
-          <ul className="list-disc pl-4">
-            {order.items.map((item: OrderItem, index: number) => (
-              <li key={item.orderItemId}>
-                <span><strong>Product:</strong> </span>
-                {editingOrderId === order.orderId ? (
-                  <input
-                    value={editingOrderData?.items[index]?.productName || ""}
-                    onChange={(e) => handleItemChange(index, "productName", e.target.value)}
-                    className="border p-1 rounded ml-2"
-                  />
-                ) : (
-                  ` ${item.productName}`
-                )}
-
-                <span> | <strong>Qty:</strong> </span>
-                {editingOrderId === order.orderId ? (
-                  <input
-                    type="number"
-                    value={editingOrderData?.items[index]?.quantity === "" ? "" : editingOrderData?.items[index]?.quantity || 1}
-                    onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                    onBlur={(e) => {
-                      if (e.target.value === "") {
-                        handleItemChange(index, "quantity", 1); // Ensure it never stays empty
-                      }
-                    }}
-                    className="border p-1 rounded ml-2 w-16"
-                    min={1} // Prevents negative numbers
-                  />
-
-                ) : (
-                  ` ${item.quantity}`
-                )}
-
-                <span> | <strong>Price:</strong> </span>
-                {editingOrderId === order.orderId ? (
-                  <input
-                    type="number"
-                    value={editingOrderData?.items[index]?.price || 1}
-                    onChange={(e) => handleItemChange(index, "price", Number(e.target.value))}
-                    className="border p-1 rounded ml-2 w-20"
-                  />
-                ) : (
-                  ` $${item.price}`
-                )}
-              </li>
-            ))}
-          </ul>
-
-          {editingOrderId === order.orderId ? (
-            <div className="mt-2">
-              <button onClick={handleSave} className="bg-green-500 text-white p-1 rounded mr-2">Save</button>
-              <button onClick={handleCancel} className="bg-gray-500 text-white p-1 rounded">Cancel</button>
-            </div>
-          ) : (
-            <div className="mt-2">
-              <button onClick={() => handleEdit(order)} className="bg-blue-500 text-white p-1 rounded mr-2">Edit</button>
-              <button onClick={() => handleRemoveOrderById(order.orderId)} className="bg-red-500 text-white p-1 rounded">Delete</button>
-            </div>
-          )}
-
-          <hr className="mt-4" />
+      {editingOrderId === order.orderId ? (
+        <div className="button-group">
+          <button onClick={handleSave} className="btn btn-save">Save</button>
+          <button onClick={handleCancel} className="btn btn-cancel">Cancel</button>
         </div>
-      ))}
+      ) : (
+        <div className="button-group">
+          <button onClick={() => handleEdit(order)} className="btn btn-edit">Edit</button>
+          <button onClick={() => handleRemoveOrderById(order.orderId)} className="btn btn-delete">Delete</button>
+        </div>
+      )}
+
+      <hr className="divider" />
     </div>
+  ))}
+</div>
+
   );
 }

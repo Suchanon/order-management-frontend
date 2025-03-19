@@ -4,7 +4,6 @@ const App = () => {
   return (
     <div>
           <CreateOrder/>
-          <div>-------------------------</div>
           <OrderList/>
     </div>
 

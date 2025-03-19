@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOrderStore } from "../store/orderStore"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "../css/CreateOrder.css";
 interface OrderItem {
     productName: string;
     quantity: number;
@@ -35,10 +36,16 @@ export default function CreateOrder() {
     };
 
     const removeItem = (index: number) => {
-        setOrder((prev) => {
-            const items = prev.orderItems.filter((_, i) => i !== index);
-            return { ...prev, orderItems: items };
-        });
+        if(index>1){
+            setOrder((prev) => {
+                const items = prev.orderItems.filter((_, i) => i !== index);
+                return { ...prev, orderItems: items };
+            });
+        }else{
+            toast.dismiss();
+            toast.info("Please buy me one product😊");
+        }
+
     };
 
     const updateItem = (index: number, key: keyof OrderItem, value: string | number) => {
@@ -92,63 +99,76 @@ export default function CreateOrder() {
     };
 
     return (
-        <div>
-            <h2>Create Order</h2>
-            <div>
+        <div className="order-form modern">
+            <h2 className="title">Create Order</h2>
+            <div className="input-group">
                 <input
                     type="text"
                     placeholder="Name"
                     value={order.user.name}
                     onChange={(e) => updateUser("name", e.target.value)}
+                    className="input"
                 />
                 <input
                     type="email"
                     placeholder="Email"
                     value={order.user.email}
                     onChange={(e) => updateUser("email", e.target.value)}
+                    className="input"
                 />
             </div>
-            <h3>Order Items</h3>
-            {order.orderItems.map((item, index) => (
-                <div key={index}>
-                    <input
-                        type="text"
-                        placeholder="Product Name"
-                        value={item.productName}
-                        onChange={(e) => updateItem(index, "productName", e.target.value)}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Quantity"
-                        value={order.orderItems[index].quantity || ""}
-                        onChange={(e) => updateItem(index, "quantity", e.target.value ? Number(e.target.value) : "")}
-                        onBlur={(e) => {
-                            if (!e.target.value || Number(e.target.value) <= 0) {
-                                updateItem(index, "quantity", 1); // Restore 1 if empty or invalid
-                            }
-                        }}
-                        min={1}
-                    />
-
-                    <input
-                        type="number"
-                        placeholder="Price"
-                        value={order.orderItems[index].price || ""}
-                        onChange={(e) => updateItem(index, "price", e.target.value ? Number(e.target.value) : "")}
-                        onBlur={(e) => {
-                            if (!e.target.value) {
-                                updateItem(index, "price", 0); // Restore 0 if empty
-                            }
-                        }}
-                        min={0}
-                    />
-
-                    <button onClick={() => removeItem(index)}>Remove</button>
-                </div>
-            ))}
-            <button onClick={addItem}>Add Item</button>
-            <br />
-            <button onClick={submitOrder}>Submit Order</button>
+            <h3 className="subtitle">Order Items</h3>
+            <div className="items-list">
+                {order.orderItems.map((item, index) => (
+                    <div key={index} className="order-item modern-card">
+                        <input
+                            type="text"
+                            placeholder="Product Name"
+                            value={item.productName}
+                            onChange={(e) => updateItem(index, "productName", e.target.value)}
+                            className="input"
+                        />
+                        <input
+                            type="number"
+                            placeholder="Quantity"
+                            value={item.quantity || ""}
+                            onChange={(e) => updateItem(index, "quantity", e.target.value ? Number(e.target.value) : "")}
+                            onBlur={(e) => {
+                                if (!e.target.value || Number(e.target.value) <= 0) {
+                                    updateItem(index, "quantity", 1);
+                                }
+                            }}
+                            min={1}
+                            className="input"
+                        />
+                        <input
+                            type="number"
+                            placeholder="Price"
+                            value={item.price || ""}
+                            onChange={(e) => updateItem(index, "price", e.target.value ? Number(e.target.value) : "")}
+                            onBlur={(e) => {
+                                if (!e.target.value) {
+                                    updateItem(index, "price", 0);
+                                }
+                            }}
+                            min={0}
+                            className="input"
+                        />
+                        <button
+                            onClick={() => removeItem(index)}
+                            className="remove-btn modern-btn"
+                        >
+                            Remove
+                        </button>
+                    </div>
+                ))}
+            </div>
+            <button onClick={addItem} className="add-btn modern-btn">
+                Add Item
+            </button>
+            <button onClick={submitOrder} className="submit-btn modern-btn">
+                Submit Order
+            </button>
         </div>
     );
 }

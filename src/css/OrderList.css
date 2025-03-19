@@ -1,0 +1,99 @@
+/* Container */
+.order-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  /* Order Card */
+  .order-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  
+  /* Inputs */
+  .order-input {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: 8px;
+  }
+  
+  .order-input-small {
+    width: 60px;
+    text-align: center;
+  }
+  
+  /* List */
+  .order-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .order-list li {
+    padding: 4px 0;
+  }
+  
+  /* Buttons */
+  .button-group {
+    margin-top: 10px;
+  }
+  
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .btn-save {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .btn-save:hover {
+    background: #45a049;
+  }
+  
+  .btn-cancel {
+    background: #757575;
+    color: white;
+  }
+  
+  .btn-cancel:hover {
+    background: #616161;
+  }
+  
+  .btn-edit {
+    background: #2196F3;
+    color: white;
+  }
+  
+  .btn-edit:hover {
+    background: #1976D2;
+  }
+  
+  .btn-delete {
+    background: #F44336;
+    color: white;
+  }
+  
+  .btn-delete:hover {
+    background: #D32F2F;
+  }
+  
+  /* Divider */
+  .divider {
+    margin-top: 16px;
+    border: none;
+    height: 1px;
+    background: #ddd;
+  }
+  
