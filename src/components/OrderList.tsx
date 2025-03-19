@@ -44,7 +44,6 @@ export default function OrderList() {
   };
 
   const handleSave = async () => {
-    console.log("editingOrderData>>", editingOrderData)
     updateOrder(editingOrderData)
     setEditingOrderId(null);
     setEditingOrderData(null);
@@ -85,35 +84,12 @@ export default function OrderList() {
         )}
       </p>
 
-      <p><strong>Customer Email:</strong>
-        {editingOrderId === order.orderId ? (
-          <input
-            value={editingOrderData?.customerEmail || ""}
-            onChange={(e) => handleChange(e, "customerEmail")}
-            className="order-input"
-          />
-        ) : (
-          ` ${order.customerEmail}`
-        )}
-      </p>
-
-      <p><strong>Status:</strong>
-        {editingOrderId === order.orderId ? (
-          <input
-            value={editingOrderData?.status || ""}
-            onChange={(e) => handleChange(e, "status")}
-            className="order-input"
-          />
-        ) : (
-          ` ${order.status}`
-        )}
-      </p>
-
       <p><strong>Items:</strong></p>
+      
       <ul className="order-list">
         {order.items.map((item: OrderItem, index: number) => (
           <li key={item.orderItemId}>
-            <span><strong>Product:</strong> </span>
+            <span><strong>Product name:</strong> </span>
             {editingOrderId === order.orderId ? (
               <input
                 value={editingOrderData?.items[index]?.productName || ""}
@@ -124,7 +100,7 @@ export default function OrderList() {
               ` ${item.productName}`
             )}
 
-            <span> | <strong>Qty:</strong> </span>
+            <span> | <strong>Quantity:</strong> </span>
             {editingOrderId === order.orderId ? (
               <input
                 type="number"
@@ -151,7 +127,7 @@ export default function OrderList() {
                 className="order-input order-input-small"
               />
             ) : (
-              ` $${item.price}`
+              `${item.price} bath.`
             )}
           </li>
         ))}

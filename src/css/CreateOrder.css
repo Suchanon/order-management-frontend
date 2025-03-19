@@ -1,6 +1,6 @@
 .order-form {
-    max-width: 420px; /* Smaller form */
-    margin: 30px auto;
+    max-width: 420px;
+    margin: auto;
     padding: 20px;
     background: #ffffff;
     border-radius: 12px;
@@ -8,7 +8,6 @@
     font-family: "Inter", sans-serif;
 }
 
-/* Ensure input boxes do not overflow */
 .input-group,
 .order-item {
     display: flex;

@@ -12,19 +12,14 @@ interface OrderItem {
 interface CreateOrderInterface {
     user: {
         name: string;
-        email: string;
     };
-    totalPrice: number;
-    status: string;
     orderItems: OrderItem[];
 }
 
 export default function CreateOrder() {
     const { createOrder,  } = useOrderStore();
     const [order, setOrder] = useState<CreateOrderInterface>({
-        user: { name: "", email: "" },
-        totalPrice: 0,
-        status: "pending",
+        user: { name: ""},
         orderItems: [{ productName: "", quantity: 1, price: 0 }],
     });
 
@@ -94,7 +89,7 @@ export default function CreateOrder() {
         }
         toast.dismiss();
         toast.success("Order submitted successfully!");
-        setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
+        setOrder({ user: { name: "" }, orderItems: [{ productName: "", quantity: 1, price: "" }] });
 
     };
 
@@ -107,13 +102,6 @@ export default function CreateOrder() {
                     placeholder="Name"
                     value={order.user.name}
                     onChange={(e) => updateUser("name", e.target.value)}
-                    className="input"
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={order.user.email}
-                    onChange={(e) => updateUser("email", e.target.value)}
                     className="input"
                 />
             </div>

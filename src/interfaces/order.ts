@@ -3,9 +3,6 @@
     orderId: number;
     userId: number;
     customerName: string;
-    customerEmail: string;
-    totalPrice: number;
-    status: string;
     createdAt: string;
     items: OrderItem[];
   }
