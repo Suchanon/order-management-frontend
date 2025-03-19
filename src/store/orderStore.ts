@@ -1,34 +1,6 @@
 import { create } from 'zustand';
 import { getOrders, createOrder, updateOrder, deleteOrder } from "../api/orderApi"
-interface OrderItem {
-  orderItemId: number;
-  customerEmail: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  orderId: number;
-  userId: number;
-  customerName: string;
-  customerEmail: string;
-  totalPrice: string; // If totalPrice should be a number, change to `number`
-  status: string;
-  createdAt: string; // Consider using `Date` if you will parse it as a Date object
-  items: OrderItem[];
-}
-
-interface OrderState {
-  orders: Order[];
-  setOrders: (orders: Order[]) => void;
-  addOrder: (order: Order) => void;
-  updateOrder: (order: Order) => void;
-  deleteOrder: (id: number) => void;
-
-  fetchOrders: () => void;
-  createOrder: (order: any) => void;
-}
+import { Order, OrderState } from "../interfaces/order"
 
 export const useOrderStore = create<OrderState>((set) => ({
   orders: [],
@@ -48,7 +20,7 @@ export const useOrderStore = create<OrderState>((set) => ({
     }
   },
 
-  createOrder: async (order: any) => {
+  createOrder: async (order: Order) => {
     try {
       const response = await createOrder(order);
       set({ orders: await getOrders() });
@@ -61,9 +33,9 @@ export const useOrderStore = create<OrderState>((set) => ({
     }
   },
 
-  addOrder: (order) => set((state) => ({ orders: [...state.orders, order] })),
+  addOrder: (order: Order) => set((state) => ({ orders: [...state.orders, order] })),
 
-  updateOrder: async (order) => {
+  updateOrder: async (order: Order) => {
     try {
       const response = await updateOrder(order);
       set({ orders: await getOrders() });
@@ -76,7 +48,7 @@ export const useOrderStore = create<OrderState>((set) => ({
     }
   },
 
-  deleteOrder: async (id) => {
+  deleteOrder: async (id: number) => {
     try {
       const response = await deleteOrder(id);
       set((state) => ({

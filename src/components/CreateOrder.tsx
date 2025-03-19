@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useOrderStore } from "../store/orderStore"
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 interface OrderItem {
     productName: string;
     quantity: number;
     price: number | string;
 }
 
-interface Order {
+interface CreateOrderInterface {
     user: {
         name: string;
         email: string;
@@ -20,18 +19,18 @@ interface Order {
 }
 
 export default function CreateOrder() {
-    const { createOrder, fetchOrders } = useOrderStore();
-    const [order, setOrder] = useState<Order>({
+    const { createOrder,  } = useOrderStore();
+    const [order, setOrder] = useState<CreateOrderInterface>({
         user: { name: "", email: "" },
         totalPrice: 0,
         status: "pending",
-        orderItems: [{ productName: "", quantity: 1, price: "" }],
+        orderItems: [{ productName: "", quantity: 1, price: 0 }],
     });
 
     const addItem = () => {
         setOrder((prev) => ({
             ...prev,
-            orderItems: [...prev.orderItems, { productName: "", quantity: 1, price: "" }],
+            orderItems: [...prev.orderItems, { productName: "", quantity: 1, price: 0 }],
         }));
     };
 
@@ -63,7 +62,7 @@ export default function CreateOrder() {
     };
 
 
-    const updateUser = (key: keyof Order["user"], value: string) => {
+    const updateUser = (key: keyof CreateOrderInterface["user"], value: string) => {
         setOrder((prev) => ({
             ...prev,
             user: { ...prev.user, [key]: value },
@@ -71,7 +70,7 @@ export default function CreateOrder() {
     };
 
 
-    const sanitizeOrder = (): Order => {
+    const sanitizeOrder = (): any => {
         return {
             ...order,
             orderItems: order.orderItems.map((item) => ({
@@ -81,15 +80,19 @@ export default function CreateOrder() {
         };
     };
     const submitOrder = async () => {
-        await createOrder(sanitizeOrder())
-        await fetchOrders()
-        setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
+        const response: any = await createOrder(sanitizeOrder())
+        if (!response.success) {
+            toast.error("Failed to submit order.");
+            return;
+        }
+        toast.dismiss();
         toast.success("Order submitted successfully!");
+        setOrder({ user: { name: "", email: "" }, totalPrice: 0, status: "pending", orderItems: [{ productName: "", quantity: 1, price: "" }] });
+
     };
 
     return (
         <div>
-          <ToastContainer position="top-right"  closeButton={false} autoClose={3000} />
             <h2>Create Order</h2>
             <div>
                 <input

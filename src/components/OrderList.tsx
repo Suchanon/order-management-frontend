@@ -3,25 +3,7 @@ import { getOrders, deleteOrder } from "../api/orderApi";
 import { useOrderStore } from "../store/orderStore";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-interface OrderItem {
-  orderItemId: number;
-  customerEmail: string;
-  productName: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  orderId: number;
-  userId: number;
-  customerName: string;
-  customerEmail: string;
-  totalPrice: string;
-  status: string;
-  createdAt: string;
-  items: OrderItem[];
-}
+import { OrderItem, Order } from "../interfaces/order"
 
 export default function OrderList() {
   const { orders, fetchOrders, deleteOrder, updateOrder } = useOrderStore();
@@ -61,6 +43,7 @@ export default function OrderList() {
   };
 
   const handleSave = async () => {
+    console.log("editingOrderData>>", editingOrderData)
     updateOrder(editingOrderData)
     setEditingOrderId(null);
     setEditingOrderData(null);
@@ -78,7 +61,7 @@ export default function OrderList() {
       toast.error(`Error: ${response.error}`);
       return;
     }
-  
+    toast.dismiss();
     toast.success("Order deleted successfully!");
   };
 
@@ -127,7 +110,7 @@ export default function OrderList() {
 
           <p><strong>Items:</strong></p>
           <ul className="list-disc pl-4">
-            {order.items.map((item: any, index: any) => (
+            {order.items.map((item: OrderItem, index: number) => (
               <li key={item.orderItemId}>
                 <span><strong>Product:</strong> </span>
                 {editingOrderId === order.orderId ? (
@@ -163,7 +146,7 @@ export default function OrderList() {
                 {editingOrderId === order.orderId ? (
                   <input
                     type="number"
-                    value={editingOrderData?.items[index]?.price || 0}
+                    value={editingOrderData?.items[index]?.price || 1}
                     onChange={(e) => handleItemChange(index, "price", Number(e.target.value))}
                     className="border p-1 rounded ml-2 w-20"
                   />
